@@ -1,0 +1,14 @@
+<table border="1">
+    <tr>
+        {% for column_name in column_names %}
+        <th>{{ column_name }}</th>
+        {% endfor %}
+    </tr>
+    {% for item in query_results %}
+    <tr> 
+        {% for data in item %}
+        <td>{{ data }}</td>
+        {% endfor %}
+    </tr>
+    {% endfor %}
+</table>

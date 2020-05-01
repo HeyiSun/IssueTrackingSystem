@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<title>Issue Display</title>
+<form action="/issue/" method="GET">
+    Issues's Project ID:  <input type="text" name="project_id"/>
+    <input type="submit" value="Submit" />
+</form>
+
+<form action="/issue/" method="GET">
+    Issues ID:  <input type="text" name="issue_id"/>
+    <input type="submit" value="Submit" />
+</form>
+
+{% include 'table.html' %}  
+
+<a href="window.history.back();">Back</a>
+
+
+</html>
