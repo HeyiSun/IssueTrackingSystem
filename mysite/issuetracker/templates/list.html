@@ -1,0 +1,12 @@
+{% load issuetracker_extras %}
+
+<div class="list-group list-group-flush bg-transparent">
+    <li class="list-group-item active">{{ list_title }}</li>
+    {% for item in list_results %}
+        {% if list_link %}
+        <a href="{{list_link|addstr:item.0}}" class="list-group-item list-group-item-action bg-transparent">{{ item.0 }}</a>
+        {% else %}
+        <a href="#" class="list-group-item list-group-item-action bg-transparent">{{ item.0 }}</a>
+        {% endif %}
+    {% endfor %}
+</div>

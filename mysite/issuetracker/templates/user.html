@@ -1,14 +1,9 @@
-<!DOCTYPE html>
-<html>
-<title>User</title>
-<form action="/user/" method="GET">
-    Username:  <input type="text" name="username"/> <br />
-    <input type="submit" value="Submit" />
-</form>
+{% extends 'base.html' %}
+
+{% block title %}User Info{% endblock %}
+
+{% block content %}
 
 {% include 'table.html' %}  
 
-<a href="window.history.back();">Back</a>
-
-
-</html>
+{% endblock %}

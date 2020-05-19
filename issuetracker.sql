@@ -26,7 +26,7 @@ INSERT INTO `user` (`uid`, `email`, `uname`, `password`, `disname`) VALUES
 
 /*Table structure for table `project` */
 CREATE TABLE `project` (
-	`pid` int NOT NULL,
+	`pid` int NOT NULL AUTO_INCREMENT,
 	`pname` varchar(40) DEFAULT NULL,
 	`pdescription` varchar(500) DEFAULT NULL,
 	`puid` int DEFAULT NULL,
@@ -63,7 +63,7 @@ INSERT INTO `lead` (`uid`, `pid`) VALUES
 
 /*Table structure for table `status` */
 CREATE TABLE `status` (
-	`sid` int NOT NULL,
+	`sid` int NOT NULL AUTO_INCREMENT,
 	`sname` varchar(40) DEFAULT NULL,
 	`sdescription` varchar(500) DEFAULT NULL,
 	`spid` int NOT NULL,
@@ -84,8 +84,7 @@ INSERT INTO `status` (`sid`, `sname`, `sdescription`, `spid`) VALUES
 (10501, 'OPEN', 'starting status', 105),
 (10502, 'CLOSED', 'ternimating status', 105),
 (13501, 'OPEN', 'starting status', 135),
-(13502, 'CLOSED', 'ternimating status', 135),
-(10804, 'SOLVED', 'solved status', 108);
+(13502, 'CLOSED', 'ternimating status', 135);
 
 
 /*Table structure for table `issue` */
@@ -153,9 +152,7 @@ INSERT INTO `statustrans` (`ssid`, `tsid`) VALUES
 (18603, 18605),
 (18604, 18605),
 (10501, 10502),
-(13501, 13502),
-(10802, 10804),
-(10804, 10802);
+(13501, 13502);
 
 
 /*Table structure for table `changestatus` */
@@ -175,10 +172,4 @@ CREATE TABLE `changestatus` (
 INSERT INTO `changestatus` (`uid`, `iid`, `ssid`, `tsid`, `supdatetime`) VALUES
 (4790, 23, 10801, 10802, '2013-04-30 16:00:00'),
 (4790, 23, 10802, 10803, '2013-05-05 16:00:00'),
-(1234, 99, 10501, 10502, '2013-07-05 16:00:00'),
-(4790, 23, 10802, 10804, '2013-05-01 16:00:00'),
-(4790, 23, 10804, 10802, '2013-05-02 16:00:00'),
-(4790, 23, 10802, 10804, '2013-05-03 16:00:00'),
-(4790, 23, 10804, 10802, '2013-05-04 16:00:00');
-
-
+(1234, 99, 10501, 10502, '2013-07-05 16:00:00');

@@ -12,4 +12,4 @@ python3.7 manage.py makemigrations
 python3.7 manage.py migrate #This will insert some django table into the issuetracker schema
 python3.7 manage.py runserver 8002
 ```
-Browse to **127.0.0.1:8002/login/** and you should see a login websi
+Browse to **127.0.0.1:8002/login/** and you should see a login website

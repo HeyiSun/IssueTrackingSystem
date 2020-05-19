@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block title %}Issue Info{% endblock %}
+
+{% block content %}
+
+
+<div class="row">
+    <div class="col-10">
+        <div class="row">
+            <p class="alas"> {{ description }} </p> 
+        </div>
+    </div>
+    <div class="col-2">
+        {% include 'list.html' %}  
+    </div>
+</div>
+
+{% endblock %}

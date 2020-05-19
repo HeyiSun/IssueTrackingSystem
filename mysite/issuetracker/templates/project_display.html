@@ -1,10 +1,13 @@
-<!DOCTYPE html>
-<html>
-<title>Project Display</title>
+{% extends 'base.html' %}
 
-{% include 'table.html' %}  
+{% block title %}Project Display{% endblock %}
 
-<br /><a href="/index.html">Go back</a>
+{% block content %}
 
+<div class="row">
+    <div class="col-12">
+        {% include 'table.html' %}  
+    </div>
+</div>
 
-</html>
+{% endblock %}

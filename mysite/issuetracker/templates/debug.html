@@ -1,9 +1,23 @@
-<!DOCTYPE html>
-<html>
-<title>Debug Page</title>
+{% extends 'base.html' %}
 
-Debug: {{debug_msg}}
+{% block title %}Error Page{% endblock %}
 
-<a href="javascript:history.back()">Back</a>
+{% block content %}
 
-</html>
+<style>
+  .error-template {padding: 40px 15px;text-align: center;}
+</style>
+
+<div class="container">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="error-template">
+        <h1> Error!</h1>
+        <h2> Invalid operation </h2>
+        <div class="error-details"> {{debug_msg}}  </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

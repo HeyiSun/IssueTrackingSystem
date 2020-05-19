@@ -9,6 +9,14 @@ def querySetToList(raw_qs):
         res.append(tuple(getattr(row, col) for col in columns))
     return (columns, res)
 
+def querySetToListFilter(raw_qs, filter_columns):
+    columns = raw_qs.columns
+    columns = [item for item in columns if item not in filter_columns]
+    res = []
+
+    for row in raw_qs:
+        res.append(tuple(getattr(row, col) for col in columns))
+    return (columns, res)
 
 
 
@@ -69,7 +77,7 @@ def queryUserIsAssignee(username, issue_id):
 
 def queryStatusTransIsExisted(from_sid, to_sid):
     with connection.cursor() as cursor:
-         num = cursor.execute("SELECT *        \
+         num = cursor.execute("SELECT *         \
                                FROM statustrans \
                                WHERE ssid = %s AND tsid = %s", [from_sid, to_sid])
     return num != 0
@@ -88,30 +96,50 @@ def queryStatusTransIsExisted(from_sid, to_sid):
 # query functions for data
 def queryUserInfo(username):
     userQS = User.objects.raw("SELECT uid, uname, email, disname \
-                               FROM user                         \
+                               FROM user                    \
                                WHERE uname = %s", [username])
-    return querySetToList(userQS)
+    return querySetToListFilter(userQS, ['uid'])
 
 
 def queryProjectAll():
-    projectQS = Project.objects.raw("SELECT * FROM project");
+    projectQS = Project.objects.raw("\
+                SELECT pid, pname as name, \
+                       uname as creator,          \
+                       ptime as createtime       \
+                FROM project join user on (puid = uid)");
     return querySetToList(projectQS)
 
 
 def queryIssueInProject(project_id):
-    issueQS = Issue.objects.raw("SELECT iid, title, currentstatus, itime \
-                                 FROM issue                              \
+    issueQS = Issue.objects.raw("SELECT iid, title, sname as status,             \
+                                        itime as createtime, disname as reporter \
+                                 FROM issue join status join user on             \
+                                      (currentstatus = sid and iuid = uid)       \
                                  WHERE ipid = %s", [project_id])
     return querySetToList(issueQS)
     
 
 def queryIssueWithId(issue_id):
-    issueQS = Issue.objects.raw("SELECT iid, title, currentstatus, itime, uid, disname \
-                                 FROM issue join user on (issue.iuid = user.uid)       \
+    issueQS = Issue.objects.raw("SELECT iid, title, sname as status,             \
+                                        itime as createtime, disname as reporter \
+                                 FROM issue join status join user on             \
+                                      (currentstatus = sid and iuid = uid)       \
                                  WHERE iid = %s", [issue_id])
     return querySetToList(issueQS)
 
 
+def queryLeadersOfProject(project_id):
+    userQS = User.objects.raw("SELECT uid, uname             \
+                               FROM `lead` NATURAL JOIN user \
+                               WHERE pid = %s", [project_id])
+    return querySetToListFilter(userQS, 'uid');
+  
+
+def queryAssigneeOfIssue(issue_id):
+    userQS = User.objects.raw("SELECT user.uid, uname                     \
+                               FROM assign JOIN user on (auid = user.uid) \
+                               WHERE iid = %s", [issue_id])
+    return querySetToListFilter(userQS, 'uid');
     
 
 

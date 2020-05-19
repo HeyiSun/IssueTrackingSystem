@@ -26,7 +26,7 @@ def login(request):
 
     if password == user.password:
         request.session['username'] = user.uname
-        return HttpResponse("Successfully login")
+        return projectDisplay(request)
         # TODO(heyi): return projectDisplay(request)
     else:
         return debug(request, "Your username and password didn't match.")
@@ -41,31 +41,55 @@ def projectDisplay(request):
     if request.session.get('username') is None:
         return notLogin(request)
 
-    columns, results = queryProjectAll()
-
+    project_columns, project_results = queryProjectAll()
+    
     return render(request, 'project_display.html',
-            {'query_results' : results, 'column_names' : columns})
+                      {'table_query_results' : project_results,
+                       'table_column_names' : project_columns,
+                       'table_link' : '/project/?project_id='})
 
 
-def issueDisplay(request):
+def projectInfo(request):
     if request.session.get('username') is None:
         return notLogin(request)
 
-    if not request.GET.get('project_id', '') and \
-       not request.GET.get('issue_id', ''):
-        return render(request, 'issue_display.html')
+    if not request.GET.get('project_id', ''):
+        return render(request, 'project_info.html')
 
-    columns = None
-    results = None
+    project_id = request.GET['project_id']
+
+    project_description = queryProjectObj(project_id).pdescription
+    issue_columns, issue_results = queryIssueInProject(project_id)
+    _, lead_results = queryLeadersOfProject(project_id);
+
+    return render(request, 'project_info.html',
+                  {'table_query_results' : issue_results,
+                   'table_column_names' : issue_columns,
+                   'table_link' : '/issue/?issue_id=',
+                   'list_title' : 'Leader',
+                   'list_link' : '/user/?username=',
+                   'list_results' : lead_results,
+                   'description' : project_description})
+
+
+def issueInfo(request):
+    if request.session.get('username') is None:
+        return notLogin(request)
+
     if not request.GET.get('issue_id', ''):
-        project_id = request.GET['project_id']
-        columns, results = queryIssueInProject(project_id)
-    else:
-        issue_id = request.GET['issue_id']
-        columns, results = queryIssueWithId(issue_id)
+        return render(request, 'issue_info.html')
 
-    return render(request, 'issue_display.html',
-                  {'query_results' : results, 'column_names' : columns})
+    issue_id = request.GET['issue_id']
+
+    issue_description = queryIssueObj(issue_id).idescription
+    issue_columns, issue_results = queryIssueWithId(issue_id)
+    _, assign_results = queryAssigneeOfIssue(issue_id);
+
+    return render(request, 'issue_info.html',
+                  {'list_title' : 'Assignee',
+                   'list_link' : '/user/?username=',
+                   'list_results' : assign_results,
+                   'description' : issue_description})
 
 
 def user(request):
@@ -73,14 +97,17 @@ def user(request):
         return notLogin(request)
 
     if not request.GET.get('username', ''):
-        return render(request, 'user.html')
+        username = request.session.get('username')
+    else:
+        username = request.GET['username']
+        # return render(request, 'user.html')
         # TODO(heyi): return empty(request, 'uname')
 
-    username = request.GET['username']
     columns, results = queryUserInfo(username)
 
     return render(request, 'user.html',
-                  {'query_results' : results, 'column_names' : columns})
+                  {'table_query_results' : results,
+                   'table_column_names' : columns})
 
 
 def leaderAdd(request):
@@ -311,6 +338,25 @@ def statustransAdd(request):
     # (from_status.sid, to_status.sid)
     return HttpResponse('Successfully add status transition')
 
+#def injection(request):
+#    if request.session.get('username') is None:
+#        return notLogin(request)
+#
+#    if not request.GET.get('issue_id', ''):
+#        return render(request, 'issue_display.html')
+#
+#    columns = None
+#    results = None
+#    if not request.GET.get('issue_id', ''):
+#        project_id = request.GET['project_id']
+#        columns, results = queryIssueInProject(project_id)
+#    else:
+#        issue_id = request.GET['issue_id']
+#        columns, results = queryIssueWithId(issue_id)
+#
+#    return render(request, 'issue_display.html',
+#                  {'table_query_results' : results,
+#                   'table_column_names' : columns})
 
 
 
