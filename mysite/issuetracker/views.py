@@ -1,7 +1,8 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 
 # Create your views here.
 from django.http import HttpResponse
+from django.urls import reverse
 from issuetracker.models import *
 from issuetracker.query import *
 import datetime 
@@ -18,23 +19,25 @@ def login(request):
     if not request.POST.get('username', '') or \
        not request.POST.get('password', ''):
         return render(request, 'login.html')
+
     username = request.POST['username']
     password = request.POST['password']
     user = queryUserObj(username)
+
     if user is None:
         return notExist(request, "Username")
 
     if password == user.password:
         request.session['username'] = user.uname
-        return projectDisplay(request)
-        # TODO(heyi): return projectDisplay(request)
+        return redirect(reverse('project_display'))
     else:
         return debug(request, "Your username and password didn't match.")
 
 
 def logout(request):
     request.session.pop('username', None)
-    return HttpResponse("You successfully logged out.")
+    return render(request, 'login.html')
+    # return HttpResponse("You successfully logged out.")
 
 
 def projectDisplay(request):
@@ -58,7 +61,9 @@ def projectInfo(request):
 
     project_id = request.GET['project_id']
 
-    project_description = queryProjectObj(project_id).pdescription
+    project_obj = queryProjectObj(project_id)
+    project_description = project_obj.pdescription
+    project_name = project_obj.pname
     issue_columns, issue_results = queryIssueInProject(project_id)
     _, lead_results = queryLeadersOfProject(project_id);
 
@@ -69,6 +74,7 @@ def projectInfo(request):
                    'list_title' : 'Leader',
                    'list_link' : '/user/?username=',
                    'list_results' : lead_results,
+                   'name' : project_name,
                    'description' : project_description})
 
 
@@ -81,15 +87,23 @@ def issueInfo(request):
 
     issue_id = request.GET['issue_id']
 
-    issue_description = queryIssueObj(issue_id).idescription
+    issue_obj = queryIssueObj(issue_id)
+    issue_description = issue_obj.idescription
+    issue_status = issue_obj.currentstatus.sname
+    issue_name = issue_obj.title
     issue_columns, issue_results = queryIssueWithId(issue_id)
-    _, assign_results = queryAssigneeOfIssue(issue_id);
+    _, assign_results = queryAssigneeOfIssue(issue_id)
+    _, status_results = queryNextStatus(issue_id)
 
     return render(request, 'issue_info.html',
                   {'list_title' : 'Assignee',
                    'list_link' : '/user/?username=',
                    'list_results' : assign_results,
-                   'description' : issue_description})
+                   'description' : issue_description,
+                   'name' : issue_name,
+                   'dropdown_title' : 'Status',
+                   'dropdown_results' : status_results,
+                   'dropdown_button' : issue_status})
 
 
 def user(request):
@@ -176,17 +190,15 @@ def statusChange(request):
         return notLogin(request)
 
     if not request.GET.get('issue_id', ''):
-        return render(request, 'status_change.html')
-        # TODO(heyi): return empty(request, 'issue id')
-    if not request.GET.get('from_status_name', '') or \
-       not request.GET.get('to_status_name', ''):
-        return render(request, 'status_change.html')
-        # TODO(heyi): return empty(request, 'from/to status')
+        return empty(request, 'issue id')
+
+    if not request.GET.get('to_status_name', ''):
+        return empty(request, 'from/to status')
+
     username = request.session.get('username')
     issue_id = request.GET.get('issue_id')
-    from_status_name = request.GET.get('from_status_name')
-    to_status_name = request.GET.get('to_status_name')
     user_id = queryUserObj(username).uid
+    to_status_name = request.GET.get('to_status_name')
 
     issue = queryIssueObj(issue_id)
     if issue is None:
@@ -194,42 +206,41 @@ def statusChange(request):
 
     if not queryUserIsLeadOfIssue(username, issue_id) and \
        not queryUserIsAssignee(username, issue_id):
+        print("11111")
         return unauthorized(request)
 
-    from_status = queryStatusObj(from_status_name, issue.ipid.pid)
+    from_status = issue.currentstatus
     to_status = queryStatusObj(to_status_name, issue.ipid.pid)
-    print(from_status, to_status)
-    if from_status is None or to_status is None:
-        return notExist(request, 'Status ' + from_status_name + \
-                                 ' or ' + to_status_name)
-    if issue.currentstatus.sid != from_status.sid:
-        return debug(request, "From state is not issue's current state.")
+    from_status_name = from_status.sname
+
+    if to_status is None:
+        return notExist(request, 'Status ' + to_status_name)
 
     if not queryStatusTransIsExisted(from_status.sid, to_status.sid):
         return debug(request, "Invalid status transition from " +\
                               from_status_name + " to " + to_status_name)
     
-    # TODO(heyi): Update status, add the transition to status change
-    # (user_id, issue.iid, from_status.sid, to_status.sid)
-    return HttpResponse('Successfully change status')
+    insertChangeStatus(user_id, issue_id, from_status.sid, to_status.sid)
+    updateIssueStatus(issue_id, to_status.sid)
+    return redirect('{}?issue_id={}'.format(reverse('issue_info'), issue_id))
 
 
 def userAdd(request):
-    if not request.GET.get('username', ''):
+    if not request.POST.get('username', '') or \
+       not request.POST.get('password', '') or \
+       not request.POST.get('email', '') or \
+       not request.POST.get('display_name', ''):
         return render(request, 'user_add.html')
-        # TODO(heyi): return empty(request, 'Username')
-    if not request.GET.get('password', ''):
-        return render(request, 'user_add.html')
-        # TODO(heyi): return empty(request, 'Password')
-    username = request.GET.get('username')
-    password = request.GET.get('password')
-    display_name  = request.GET.get('display_name')
-    email  = request.GET.get('email')
+
+    username = request.POST.get('username')
+    password = request.POST.get('password')
+    display_name  = request.POST.get('display_name')
+    email  = request.POST.get('email')
 
     if queryUserObj(username) is not None:
         return alreadyExist(request, 'This username')
 
-    # TODO(heyi): Add user
+    insertUser(username, password, email, display_name)
     return HttpResponse('Successfully add user')
 
 
@@ -240,39 +251,43 @@ def projectAdd(request):
     # Not sure if project name can be empty
     if not request.GET.get('project_name', ''):
         return render(request, "project_add.html")
-        # TODO(heyi): return empty(request, 'Project name')
+
     username = request.session.get('username')
     project_name = request.GET.get("project_name")
     project_description = request.GET.get("project_description")
     creator_id = queryUserObj(username).uid
-    # TODO(heyi): Add project
-    # TODO(heyi): Add 'OPEN' status
-    return HttpResponse("Successfully add project.")
+
+    insertProject(project_name, project_description, creator_id)
+
+    return redirect(reverse('project_display'))
 
 
 
 def issueAdd(request):
     if request.session.get('username') is None:
         return notLogin(request)
-    # Not sure if issue title name can be empty
-    if not request.GET.get('issue_title', ''):
-        return render(request, "issue_add.html")
-        # TODO(heyi): return empty(request, 'Issue title')
+
     if not request.GET.get('project_id', ''):
-        return render(request, "issue_add.html")
-        # TODO(heyi): return empty(request, 'Project id')
+        return empty(request, 'Project id')
+
+    project_id = request.GET.get("project_id")
+    # Not sure if issue title name can be empty
+    if not request.GET.get('issue_title', '') or \
+       not request.GET.get('issue_description', ''):
+        return render(request, "issue_add.html",
+                      {"project_id" : project_id})
+
     username = request.session.get('username')
     issue_title = request.GET.get("issue_title")
     issue_description = request.GET.get("issue_description")
-    project_id = request.GET.get("project_id")
     creator_id = queryUserObj(username).uid
 
     open_status = queryStatusObj('OPEN', project_id)
     if open_status is None:
         return debug(request, "The project's OPEN status is not set properly")
-    # TODO(heyi): Add Issue
-    # (issue_title, issue_description, open_status.sid, creator_id, time, project_id)
-    return HttpResponse('Successfully add issue')
+
+    insertIssue(issue_title, issue_description, open_status.sid, creator_id, project_id)
+    return redirect('{}?project_id={}'.format(reverse('project_info'), project_id))
 
 
 

@@ -1,0 +1,20 @@
+
+<div class="list-group list-group-flush bg-transparent">
+
+    <li class="list-group-item list-group-item-action list-group-item-dark active rounded py-2 alas text-center">{{ dropdown_title }}</li>
+
+    <div class="dropdown">
+
+        <button class="btn btn-primary-outline dropdown-toggle w-100 alas text-center" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            {{ dropdown_button }}
+        </button>
+
+        <div class="dropdown-menu w-100" aria-labelledby="dropdownMenuButton">
+            {% for item in dropdown_results %}
+                <a class="dropdown-item alas" href="#" onclick="changeStatus();">{{ item.0 }}</a>
+            {% endfor %}
+        </div>
+
+    </div>
+
+</div>

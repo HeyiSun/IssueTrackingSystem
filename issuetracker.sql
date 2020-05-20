@@ -76,6 +76,7 @@ INSERT INTO `status` (`sid`, `sname`, `sdescription`, `spid`) VALUES
 (10801, 'OPEN', 'starting status', 108),
 (10802, 'SOLVING', 'ternimating status', 108),
 (10803, 'CLOSED', 'ternimating status', 108),
+(10804, 'SOLVED', 'solved status', 108),
 (18601, 'OPEN', 'starting status', 186),
 (18602, 'SALES RETURN', 'return the sales with broken component', 186),
 (18603, 'SALES EXCHANGE', 'exchange another new item', 186),
@@ -89,7 +90,7 @@ INSERT INTO `status` (`sid`, `sname`, `sdescription`, `spid`) VALUES
 
 /*Table structure for table `issue` */
 CREATE TABLE `issue` (
-	`iid` int NOT NULL,
+	`iid` int NOT NULL AUTO_INCREMENT,
 	`title` varchar(40) DEFAULT NULL,
 	`idescription` varchar(500) DEFAULT NULL,
 	`currentstatus` int DEFAULT NULL,
@@ -152,7 +153,9 @@ INSERT INTO `statustrans` (`ssid`, `tsid`) VALUES
 (18603, 18605),
 (18604, 18605),
 (10501, 10502),
-(13501, 13502);
+(13501, 13502),
+(10802, 10804),
+(10804, 10802);
 
 
 /*Table structure for table `changestatus` */
@@ -172,4 +175,8 @@ CREATE TABLE `changestatus` (
 INSERT INTO `changestatus` (`uid`, `iid`, `ssid`, `tsid`, `supdatetime`) VALUES
 (4790, 23, 10801, 10802, '2013-04-30 16:00:00'),
 (4790, 23, 10802, 10803, '2013-05-05 16:00:00'),
-(1234, 99, 10501, 10502, '2013-07-05 16:00:00');
+(1234, 99, 10501, 10502, '2013-07-05 16:00:00'),
+(4790, 23, 10802, 10804, '2013-05-01 16:00:00'),
+(4790, 23, 10804, 10802, '2013-05-02 16:00:00'),
+(4790, 23, 10802, 10804, '2013-05-03 16:00:00'),
+(4790, 23, 10804, 10802, '2013-05-04 16:00:00');

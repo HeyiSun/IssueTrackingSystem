@@ -1,14 +1,35 @@
-<!DOCTYPE html>
-<html>
-<title>Status Change</title>
-<form action="/user_add/" method="GET">
-    Username: <input type="text" name="username"/> <br />
-    Password: <input type="text" name="password"/> <br />
-    Display name:   <input type="text" name="display_name"/> <br />
-    email:   <input type="text" name="email"/> <br />
-    <input type="submit" value="Submit" />
-</form>
+{% extends 'base.html' %}
 
-<a href="window.history.back();">Back</a>
+{% block title %}Register{% endblock %}
 
-</html>
+{% block content %}
+
+<div class="row">
+    <div class="col-6 mx-auto">
+        <form action="/user_add/" method="POST">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="Username">Username</label>
+                <input type="text" class="form-control" placeholder="Enter Username" name="username">
+            </div>
+            <div class="form-group">
+                <label for="Password">Password</label>
+                <input type="password" class="form-control" placeholder="Enter Password" name="password">
+            </div>
+            <div class="form-group">
+                <label for="Email">Email Address</label>
+                <input type="email" class="form-control" placeholder="Enter Email" name="email">
+            </div>
+            <div class="form-group">
+                <label for="display name">Display name</label>
+                <input type="text" class="form-control" placeholder="Display name" name="display_name">
+            </div>
+            <button type="submit" class="btn btn-dark btn-sm" name="register">register</button>
+        </form>
+    </div>
+</div>
+
+
+{% endblock %}
+
+

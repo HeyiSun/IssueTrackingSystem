@@ -25,7 +25,7 @@ SECRET_KEY = '8r8*2d_$y3$)je4fv@qek+oqqzpgy3z_8(e@w1ey5^!v%fqo3s'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -83,8 +83,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'issuetracker',
-        'USER': 'xxxx',
-        'PASSWORD': 'xxxxxxxx',
+        'USER': 'xxx',
+        'PASSWORD': 'xxxxxx',
         'HOST': 'xxx.xxx.xxx.xxx',
         'PORT': '3306'
     }
@@ -128,6 +128,17 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 STATIC_URL = '/static/'
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'collected_static')
+
+STATICFILES_DIRS = (
+    os.path.join(BASE_DIR, "common_static"),
+)
+
+STATICFILES_FINDERS = (
+    "django.contrib.staticfiles.finders.FileSystemFinder",
+    "django.contrib.staticfiles.finders.AppDirectoriesFinder"
+)
 
 # Session setting
 SESSION_COOKIE_AGE = 60 * 30  # 30 mins

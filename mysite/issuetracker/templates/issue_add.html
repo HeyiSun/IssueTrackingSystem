@@ -1,13 +1,27 @@
-<!DOCTYPE html>
-<html>
-<title>Add Issue</title>
-<form action="/issue_add/" method="GET">
-    Issue title: <input type="text" name="issue_title"/> <br />
-    Issue description: <input type="text" name="issue_description"/> <br />
-    Project id: <input type="text" name="project_id"/> <br />
-    <input type="submit" value="Submit" />
-</form>
+{% extends 'base.html' %}
 
-<a href="window.history.back();">Back</a>
+{% block title %}Add Issue{% endblock %}
 
-</html>
+{% block content %}
+
+
+<div class="row">
+    <div class="col-6 mx-auto">
+        <form action="/issue_add/" method="GET">
+            <div class="form-group">
+                <label for="Project id">Project id</label>
+                <input type="text" readonly class="form-control" name="project_id" value="{{ project_id }}">
+            </div>
+            <div class="form-group">
+                <label for="Title">Title</label>
+                <input type="text" class="form-control" placeholder="Issue title" name="issue_title">
+            </div>
+            <div class="form-group">
+                <label for="Issue description">Description</label>
+                <textarea class="form-control" rows="5" placeholder="Issue description" name="issue_description"></textarea>
+            </div>
+            <button type="submit" class="btn btn-dark btn-sm">Add Issue</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

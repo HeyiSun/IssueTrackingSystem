@@ -1,12 +1,16 @@
 {% load issuetracker_extras %}
 
 <div class="list-group list-group-flush bg-transparent">
-    <li class="list-group-item active">{{ list_title }}</li>
+    <li class="list-group-item list-group-item-action list-group-item-dark active rounded py-2 alas text-center">{{ list_title }}</li>
+
     {% for item in list_results %}
+
         {% if list_link %}
-        <a href="{{list_link|addstr:item.0}}" class="list-group-item list-group-item-action bg-transparent">{{ item.0 }}</a>
+            <a href="{{list_link|addstr:item.0}}" class="list-group-item list-group-item-action bg-transparent py-1 alas text-center">{{ item.0 }}</a>
         {% else %}
-        <a href="#" class="list-group-item list-group-item-action bg-transparent">{{ item.0 }}</a>
+            <a href="#" class="list-group-item list-group-item-action bg-transparent py-1 alas text-center">{{ item.0 }}</a>
         {% endif %}
+
     {% endfor %}
+
 </div>

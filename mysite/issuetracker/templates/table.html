@@ -8,20 +8,20 @@
 
     <tr>
         {% for column_name in table_column_names %}
-            <th>{{ column_name }}</th>
+            <th class="alas">{{ column_name }}</th>
         {% endfor %}
     </tr>
 
-    {%   for record in table_query_results %}
+    {% for record in table_query_results %}
 
         {% if table_link %}
-            <tr onclick="document.location = '{{table_link|addstr:record.0}}';" class="clickrow"> 
+            <tr onclick="document.location = '{{table_link|addstr:record.0}}';" class="clickrow alas"> 
         {% else %}
             <tr class="clickrow"> 
         {% endif %}
 
         {% for data in record %}
-            <td>{{ data }}</td>
+            <td class="alas">{{ data }}</td>
         {% endfor %}
 
         </tr>

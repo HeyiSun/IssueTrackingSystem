@@ -3,9 +3,22 @@
 {% block title %}Add Project{% endblock %}
 
 {% block content %}
-<form action="/project_add/" method="GET">
-    Project name: <input type="text" name="project_name"/> <br />
-    Project description: <input type="text" name="project_description"/> <br />
-    <input type="submit" value="Submit" />
-</form>
+
+<div class="row">
+    <div class="col-6 mx-auto">
+        <form action="/project_add/" method="GET">
+            <div class="form-group">
+                <label for="Project name">Name</label>
+                <input type="text" class="form-control" placeholder="Project Name" name="project_name">
+            </div>
+            <div class="form-group">
+                <label for="Project description">Description</label>
+                <textarea class="form-control" rows="5" placeholder="Project Description" name="project_description"></textarea>
+            </div>
+            <button type="submit" class="btn btn-dark btn-sm">Add Project</button>
+        </form>
+    </div>
+</div>
+
+
 {% endblock %}
