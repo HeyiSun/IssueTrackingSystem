@@ -4,6 +4,9 @@
 
 {% block content %}
 
+{% include 'add_status_modal.html' %}  
+
+{% include 'add_transition_modal.html' %}  
 
 <div class="row">
     <div class="col-10">
@@ -32,15 +35,34 @@
         </div>
     </div>
     <div class="col-2">
+        <div class="row row">
+            <div class="col-12">
+                <button type="button" class="btn btn-primary-outline btn-sm float-left w-100" data-toggle="modal" data-target="#addStatus">
+                    <span class="fa fa-plus" aria-hidden="true"></span>
+                    New Status
+                </button>
+            </div>
+        </div>
         <div class="row">
+            <div class="col-12">
+                <button type="button" class="btn btn-primary-outline btn-sm float-left w-100" data-toggle="modal" data-target="#addTransition">
+                    <span class="fa fa-plus" aria-hidden="true"></span>
+                    New Transition
+                </button>
+            </div>
+        </div>
+        <div class="row row-m-t">
             <div class="col-12">
             {% include 'list.html' %}  
             </div>
         </div>
         <div class="row">
-            <div class="col-12">
-                <button type="button" class="btn btn-dark btn-sm float-right">
-                    <span class="fa fa-plus" aria-hidden="true"></span>
+            <div class="col-sm-7 col-md-8 col-lg-9 col-xl-10">
+                <input class="invisible w-100" type="text" id="invisible box" onfocusout="focusOut();">
+            </div>
+            <div class="col-sm-5 col-md-4 col-lg-3 col-xl-2">
+                <button type="button" class="btn btn-dark btn-sm float-right" onclick="pressPlusButton();" onfocusin="focusIn();" id="popup button" dest="/lead/">
+                    <span class="fa fa-plus fa-sm" aria-hidden="true"></span>
                 </button>
             </div>
         </div>

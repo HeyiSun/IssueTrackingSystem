@@ -154,6 +154,15 @@ def queryNextStatus(issue_id):
     return querySetToListFilter(statusQS, 'sid')
 
 
+def queryStatusOfProject(project_id):
+    statusQS = Status.objects.raw(
+            "SELECT sid, sname \
+             FROM status       \
+             WHERE spid = %s", [project_id])
+    return querySetToListFilter(statusQS, 'sid')
+
+
+
 
 # Insert
 def insertChangeStatus(user_id, issue_id, from_status_id, to_status_id):
@@ -178,12 +187,38 @@ def insertProject(project_name, project_description, creator_id):
         cursor.execute("INSERT INTO status(sname, sdescription, spid) \
                         VALUES('OPEN', 'Initial State', LAST_INSERT_ID())")
 
-
 def insertIssue(issue_title, issue_description, open_status_id, creator_id, project_id):
     with connection.cursor() as cursor:
         cursor.execute("INSERT INTO issue(title, idescription, currentstatus, iuid, itime, ipid) \
                         VALUES(%s, %s, %s, %s, NOW(), %s)", [issue_title, issue_description,
                                                              open_status_id, creator_id, project_id])
+
+
+def insertLead(uid, pid):
+    with connection.cursor() as cursor:
+        cursor.execute("INSERT INTO `lead` \
+                        VALUES(%s, %s)", [uid, pid]);
+
+
+def insertAssign(assigner_id, assignee_id, issue_id):
+    with connection.cursor() as cursor:
+        cursor.execute("INSERT INTO assign \
+                        VALUES(%s, %s, %s, NOW())",
+                        [assigner_id,assignee_id, issue_id])
+
+
+def insertStatus(status_name, status_description, project_id):
+    with connection.cursor() as cursor:
+        cursor.execute("INSERT INTO status(sname, sdescription, spid) \
+                        VALUES(%s, %s, %s)",
+                        [status_name, status_description, project_id])
+
+
+def insertStatusTrans(from_sid, to_sid):
+    with connection.cursor() as cursor:
+        cursor.execute("INSERT INTO statustrans \
+                        VALUES(%s, %s)", [from_sid, to_sid])
+
 
 
 
@@ -195,8 +230,6 @@ def updateIssueStatus(issue_id, to_status_id):
                         SET currentstatus=%s \
                         WHERE iid = %s", [to_status_id, issue_id])
     
-
-
 
 # def dictfetchall(cursor):
 #     "Return all rows from a cursor as a dict"

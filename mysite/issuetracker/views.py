@@ -65,7 +65,8 @@ def projectInfo(request):
     project_description = project_obj.pdescription
     project_name = project_obj.pname
     issue_columns, issue_results = queryIssueInProject(project_id)
-    _, lead_results = queryLeadersOfProject(project_id);
+    _, lead_results = queryLeadersOfProject(project_id)
+    _, all_status = queryStatusOfProject(project_id)
 
     return render(request, 'project_info.html',
                   {'table_query_results' : issue_results,
@@ -75,7 +76,9 @@ def projectInfo(request):
                    'list_link' : '/user/?username=',
                    'list_results' : lead_results,
                    'name' : project_name,
-                   'description' : project_description})
+                   'description' : project_description,
+                   'project_id' : project_id,
+                   'all_status' : all_status})
 
 
 def issueInfo(request):
@@ -130,8 +133,7 @@ def leaderAdd(request):
 
     if not request.GET.get('project_id', '') or \
        not request.GET.get('new_leader_username', ''):
-        return render(request, 'leader_add.html')
-        # TODO(heyi): return empty(request, 'Project id')
+        return empty(request, 'Project id')
 
     username = request.session.get('username')
     project_id = request.GET.get('project_id')
@@ -149,19 +151,17 @@ def leaderAdd(request):
 
     if queryUserIsLeadOfProject(new_leader_username, project_id):
         return alreadyExist(request, "This leader")
-    # TODO(heyi): update lead
-    # (new_leader.uid, project_id)
-    return debug(request, 'Successfully add leader')
+
+    insertLead(new_leader.uid, project_id)
+    return redirect('{}?project_id={}'.format(reverse('project_info'), project_id))
 
 
 def issueAssign(request):
     if request.session.get('username') is None:
         return notLogin(request)
 
-    if not request.GET.get('issue_id', '') or \
-       not request.GET.get('assignee_username', ''):
-        return render(request, 'issue_assign.html')
-        # TODO(heyi):return empty(request, 'project Id')
+    if not request.GET.get('assignee_username', ''):
+        return empty(request, 'assignee username')
 
     username = request.session.get('username')
     issue_id = request.GET.get('issue_id')
@@ -180,9 +180,9 @@ def issueAssign(request):
 
     if queryUserIsAssignee(assignee_username, issue_id):
         return alreadyExist(request, "This assignee")
-    # TODO(heyi): update assign
-    # (user_id, assignee.uid, issue_id, time)
-    return debug(request, 'Successfully assign issue')
+
+    insertAssign(user_id, assignee.uid, issue_id)
+    return redirect('{}?issue_id={}'.format(reverse('issue_info'), issue_id))
 
 
 def statusChange(request):
@@ -291,19 +291,18 @@ def issueAdd(request):
 
 
 
-
 def statusAdd(request):
     if request.session.get('username') is None:
         return notLogin(request)
+
     if not request.GET.get('project_id', ''):
-        return render(request, "status_add.html")
-        # TODO(heyi): return empty(request, 'Project id')
+        return empty(request, 'Project id')
     if not request.GET.get('status_name', ''):
-        return render(request, "status_add.html")
-        # TODO(heyi): return empty(request, 'Status name')
+        return empty(request, 'Status name')
+
     username = request.session.get('username')
     status_name = request.GET.get('status_name')
-    status_description = request.GET.get('status_description')
+    status_description = request.GET.get('status_description', "")
     project_id = request.GET.get('project_id')
 
     if queryProjectObj(project_id) is None:
@@ -314,21 +313,22 @@ def statusAdd(request):
 
     if queryStatusObj(status_name, project_id) is not None:
         return alreadyExist(request, 'Status ' + status_name)
-    # Add status
-    # (status_name, status_description, project_id)
-    return HttpResponse('Successfully add status')
+
+    insertStatus(status_name, status_description, project_id)
+    return redirect('{}?project_id={}'.format(reverse('project_info'), project_id))
 
 
 def statustransAdd(request):
     if request.session.get('username') is None:
         return notLogin(request)
+
     if not request.GET.get('project_id', ''):
-        return render(request, "statustrans_add.html")
-        # TODO(heyi): return empty(request, 'Project id')
+         return empty(request, 'Project id')
+
     if not request.GET.get('from_status_name', '') or \
        not request.GET.get('to_status_name', ''):
-        return render(request, "statustrans_add.html")
-        # TODO(heyi): return empty(request, 'Status name')
+         return empty(request, 'Status name')
+
     username = request.session.get('username')
     project_id = request.GET.get('project_id')
     from_status_name = request.GET.get('from_status_name')
@@ -349,29 +349,10 @@ def statustransAdd(request):
     if queryStatusTransIsExisted(from_status.sid, to_status.sid):
         return alreadyExist(request, "Transition from " + from_status_name + \
                                      " to " + to_status_name)
-    # TODO(heyi): Add status transition
-    # (from_status.sid, to_status.sid)
-    return HttpResponse('Successfully add status transition')
 
-#def injection(request):
-#    if request.session.get('username') is None:
-#        return notLogin(request)
-#
-#    if not request.GET.get('issue_id', ''):
-#        return render(request, 'issue_display.html')
-#
-#    columns = None
-#    results = None
-#    if not request.GET.get('issue_id', ''):
-#        project_id = request.GET['project_id']
-#        columns, results = queryIssueInProject(project_id)
-#    else:
-#        issue_id = request.GET['issue_id']
-#        columns, results = queryIssueWithId(issue_id)
-#
-#    return render(request, 'issue_display.html',
-#                  {'table_query_results' : results,
-#                   'table_column_names' : columns})
+    insertStatusTrans(from_status.sid, to_status.sid)
+    return redirect('{}?project_id={}'.format(reverse('project_info'), project_id))
+
 
 
 

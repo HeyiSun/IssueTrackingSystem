@@ -28,7 +28,9 @@
 
 <body>
  
-{% include 'nav.html' %}
+{% block nav %}
+    {% include 'nav.html' %}
+{% endblock %}
 
 <div class="container">
 
@@ -36,7 +38,8 @@
   <div> default content </div>
   {% endblock %}
  
-  {% include 'bottom.html' %}
+{# {% include 'bottom.html' %} #}
+
 
 </div>
 
