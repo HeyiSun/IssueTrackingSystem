@@ -19,7 +19,7 @@ from issuetracker import views as issuetracker_views
 
 
 urlpatterns = [
-    path('index/', issuetracker_views.index, name='index'),
+    path('', issuetracker_views.index, name='index'),
 
     path('login/', issuetracker_views.login, name='login'),
     path('logout/', issuetracker_views.logout, name='logout'),

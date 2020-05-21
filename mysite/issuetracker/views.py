@@ -9,13 +9,14 @@ import datetime
 # TODO(heyi): check input length (and password security)
 
 
-# may exist a homepage
 def index(request):
-    return render(request, 'login.html')
-    # return render(request, 'index.html')
+    return render(request, 'index.html')
 
 
 def login(request):
+    if request.session.get('username') is not None:
+        return redirect(reverse('project_display'))
+
     if not request.POST.get('username', '') or \
        not request.POST.get('password', ''):
         return render(request, 'login.html')
@@ -36,8 +37,7 @@ def login(request):
 
 def logout(request):
     request.session.pop('username', None)
-    return render(request, 'login.html')
-    # return HttpResponse("You successfully logged out.")
+    return notLogin(request)
 
 
 def projectDisplay(request):
@@ -57,7 +57,7 @@ def projectInfo(request):
         return notLogin(request)
 
     if not request.GET.get('project_id', ''):
-        return render(request, 'project_info.html')
+        return empty(request, 'project_id')
 
     project_id = request.GET['project_id']
 
@@ -86,7 +86,7 @@ def issueInfo(request):
         return notLogin(request)
 
     if not request.GET.get('issue_id', ''):
-        return render(request, 'issue_info.html')
+        return empty(request, 'issue_id')
 
     issue_id = request.GET['issue_id']
 
@@ -117,8 +117,6 @@ def user(request):
         username = request.session.get('username')
     else:
         username = request.GET['username']
-        # return render(request, 'user.html')
-        # TODO(heyi): return empty(request, 'uname')
 
     columns, results = queryUserInfo(username)
 
@@ -230,7 +228,7 @@ def userAdd(request):
        not request.POST.get('password', '') or \
        not request.POST.get('email', '') or \
        not request.POST.get('display_name', ''):
-        return render(request, 'user_add.html')
+        return empty(request, 'User information')
 
     username = request.POST.get('username')
     password = request.POST.get('password')
@@ -248,9 +246,9 @@ def userAdd(request):
 def projectAdd(request):
     if request.session.get('username', '') is None:
         return notLogin(request)
-    # Not sure if project name can be empty
+
     if not request.GET.get('project_name', ''):
-        return render(request, "project_add.html")
+        return empty(request, "project_name")
 
     username = request.session.get('username')
     project_name = request.GET.get("project_name")
@@ -271,11 +269,11 @@ def issueAdd(request):
         return empty(request, 'Project id')
 
     project_id = request.GET.get("project_id")
-    # Not sure if issue title name can be empty
-    if not request.GET.get('issue_title', '') or \
-       not request.GET.get('issue_description', ''):
-        return render(request, "issue_add.html",
-                      {"project_id" : project_id})
+
+    if not request.GET.get('issue_title', ''):
+        return empty(request, 'issue_title')
+    if not request.GET.get('issue_description', ''):
+        return empty(request, 'issue_description')
 
     username = request.session.get('username')
     issue_title = request.GET.get("issue_title")
