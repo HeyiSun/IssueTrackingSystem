@@ -27,6 +27,7 @@ urlpatterns = [
     path('project_display/', issuetracker_views.projectDisplay, name='project_display'),
     path('project/', issuetracker_views.projectInfo, name='project_info'),
     path('issue/', issuetracker_views.issueInfo, name='issue_info'),
+    path('issue_search/', issuetracker_views.issueSearch, name='issue_search'),
     path('assign/', issuetracker_views.issueAssign, name='assign'),
     path('lead/', issuetracker_views.leaderAdd, name='lead'),
     path('status_change/', issuetracker_views.statusChange, name='status'),

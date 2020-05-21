@@ -1,8 +1,9 @@
 from django.shortcuts import render, redirect
 
 # Create your views here.
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.urls import reverse
+from django.template.loader import render_to_string
 from issuetracker.models import *
 from issuetracker.query import *
 import datetime 
@@ -51,6 +52,29 @@ def projectDisplay(request):
                        'table_column_names' : project_columns,
                        'table_link' : '/project/?project_id='})
 
+def issueSearch(request):
+    data = {}
+    if request.session.get('username') is None:
+        data['error'] = 'Not Login'
+        return JsonResponse(data)
+
+    if not request.GET.get('project_id', ''):
+        data['error'] = 'Empty pid'
+        return JsonResponse(data)
+
+    project_id = request.GET.get('project_id')
+    keyword = request.GET.get('keyword', '')
+    print(project_id)
+    print(keyword)
+    issue_columns, issue_results = queryIssueWithKeyword(project_id, keyword)
+    
+
+    data['result'] = render_to_string('table.html', {'table_query_results' : issue_results,
+                                                     'table_column_names' : issue_columns,
+                                                     'table_link' : '/issue/?issue_id='})
+    return JsonResponse(data)
+
+
 
 def projectInfo(request):
     if request.session.get('username') is None:
@@ -97,6 +121,7 @@ def issueInfo(request):
     issue_columns, issue_results = queryIssueWithId(issue_id)
     _, assign_results = queryAssigneeOfIssue(issue_id)
     _, status_results = queryNextStatus(issue_id)
+    history_columns, history_results = queryIssueHistory(issue_id)
 
     return render(request, 'issue_info.html',
                   {'list_title' : 'Assignee',
@@ -106,7 +131,11 @@ def issueInfo(request):
                    'name' : issue_name,
                    'dropdown_title' : 'Status',
                    'dropdown_results' : status_results,
-                   'dropdown_button' : issue_status})
+                   'dropdown_button' : issue_status,
+                   'table_query_results' : history_results,
+                   'table_column_names' : history_columns})
+
+
 
 
 def user(request):
@@ -228,7 +257,7 @@ def userAdd(request):
        not request.POST.get('password', '') or \
        not request.POST.get('email', '') or \
        not request.POST.get('display_name', ''):
-        return empty(request, 'User information')
+        return render(request, 'user_add.html')
 
     username = request.POST.get('username')
     password = request.POST.get('password')
@@ -248,7 +277,7 @@ def projectAdd(request):
         return notLogin(request)
 
     if not request.GET.get('project_name', ''):
-        return empty(request, "project_name")
+        return render(request, "project_add.html")
 
     username = request.session.get('username')
     project_name = request.GET.get("project_name")
@@ -270,10 +299,10 @@ def issueAdd(request):
 
     project_id = request.GET.get("project_id")
 
-    if not request.GET.get('issue_title', ''):
-        return empty(request, 'issue_title')
-    if not request.GET.get('issue_description', ''):
-        return empty(request, 'issue_description')
+    if not request.GET.get('issue_title', '') or \
+       not request.GET.get('issue_description', ''):
+        return render(request, "issue_add.html",
+                      {"project_id" : project_id})
 
     username = request.session.get('username')
     issue_title = request.GET.get("issue_title")

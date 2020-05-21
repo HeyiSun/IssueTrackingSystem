@@ -83,3 +83,24 @@ function pressPlusButton() {
         box_element.focus();
     }
 }
+
+function searchIssue() {
+    let box_element = document.getElementById("issue search");
+    const project_id = getParameterByName('project_id');
+    const keyword = box_element.value;
+    const url = `/issue_search/?project_id=${project_id}&keyword=${keyword}`;
+    let xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            var res = JSON.parse(this.responseText);
+            document.getElementById("issue table").innerHTML = res['result'];
+        }
+    };
+    xhttp.open("GET", url, true);
+    xhttp.send();
+}
+
+
+
+
+

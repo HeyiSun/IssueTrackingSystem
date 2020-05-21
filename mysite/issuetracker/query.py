@@ -162,6 +162,29 @@ def queryStatusOfProject(project_id):
     return querySetToListFilter(statusQS, 'sid')
 
 
+def queryIssueHistory(issue_id):
+    statusQS = Status.objects.raw(
+        "SELECT s1.sid, s1.sname, s2.sname, uname, supdatetime               \
+         FROM  status s1 JOIN changestatus JOIN status s2 JOIN user          \
+               ON (s1.sid = changestatus.ssid AND s2.sid = changestatus.tsid \
+                   AND changestatus.uid = user.uid)                          \
+         WHERE iid = %s", [issue_id])
+    return querySetToListFilter(statusQS, 'sid')
+
+
+def queryIssueWithKeyword(project_id, keyword):
+    keyword = '%' + keyword + '%'
+    issueQS = Issue.objects.raw(
+            "SELECT iid, title, sname as status,             \
+                    itime as createtime, disname as reporter \
+             FROM issue join status join user on        \
+                  (currentstatus = sid and iuid = uid)       \
+             WHERE title LIKE %s AND ipid = %s", [keyword, project_id])
+    return querySetToList(issueQS)
+                                 
+
+
+
 
 
 # Insert
